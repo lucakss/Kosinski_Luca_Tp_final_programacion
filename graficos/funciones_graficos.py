@@ -72,7 +72,7 @@ def generar_pistas(ventana: object, fuente: object, tamano_celdas: int,
         
         #Recorre las pistas al reves
         for _ in range(len(pistas)):
-            texto = fuente.render(str(pistas[indice]), True, NEGRO)
+            texto = fuente.render(str(pistas[indice]), True, BLANCO)
             ventana.blit(texto, (x, y))
             indice -= 1
             #Espacio entre numeros
@@ -91,7 +91,7 @@ def generar_pistas(ventana: object, fuente: object, tamano_celdas: int,
         
         #Recorre las pistas al reves
         for _ in range(len(pistas)):
-            texto = fuente.render(str(pistas[indice]), True, NEGRO)
+            texto = fuente.render(str(pistas[indice]), True, BLANCO)
             ventana.blit(texto, (x, y))
             indice -= 1
             #Espacio entre numeros
@@ -134,6 +134,17 @@ def encontrar_posicion_matriz(cant_celdas: int, colisiones: list, cordenadas: tu
 
 def actualizar_pintado(ventana: object, cant_celdas: int, colisiones: tuple,
                        matriz_estado: list, tamano_celdas: int, incorrectas: set) -> None:
+    """
+    Dibuja el estado actual de la matriz del nonograma en pantalla.
+
+    Descripción:
+        Recorre toda la matriz y dibuja en pantalla el contenido según su estado.
+        - Si la celda está vacía (0), se pinta de blanco.
+        - Si está pintada (1), se pinta en VERDE.
+        - Si tiene una X (2), se dibuja una cruz:
+            · Negra si es correcta
+            · Roja si es incorrecta (dentro de `incorrectas`)
+    """
     
     for fila in range(cant_celdas):
         for columna in range(cant_celdas):
@@ -143,18 +154,26 @@ def actualizar_pintado(ventana: object, cant_celdas: int, colisiones: tuple,
             match actual:
                             
                 case 0:
-                    pygame.draw.rect(ventana, BLANCO, (x, y, tamano_celdas -1, tamano_celdas -1))
+                    pygame.draw.rect(ventana, BLANCO, (x, y, tamano_celdas -1,
+                                                       tamano_celdas -1))
                                 
                 case 1:
-                    pygame.draw.rect(ventana, CELESTE, (x, y, tamano_celdas -1, tamano_celdas -1))
+                    pygame.draw.rect(ventana, VERDE, (x, y, tamano_celdas -1,
+                                                      tamano_celdas -1))
                             
                 case 2:
                     if (fila, columna) in incorrectas:
-                        pygame.draw.line(ventana, ROJO, (x,y), (x+tamano_celdas, y+tamano_celdas), 3)
-                        pygame.draw.line(ventana, ROJO, (x+tamano_celdas,y), (x, y+tamano_celdas), 3)
+                        pygame.draw.line(ventana, ROJO, (x,y), (x+tamano_celdas,
+                                                                y+tamano_celdas), 3)
+                        
+                        pygame.draw.line(ventana, ROJO, (x+tamano_celdas,y),
+                                         (x, y+tamano_celdas), 3)
                     else:
-                        pygame.draw.line(ventana, NEGRO, (x,y), (x+tamano_celdas, y+tamano_celdas), 3)
-                        pygame.draw.line(ventana, NEGRO, (x+tamano_celdas,y), (x, y+tamano_celdas), 3)
+                        pygame.draw.line(ventana, NEGRO, (x,y),
+                                         (x+tamano_celdas, y+tamano_celdas), 3)
+                        
+                        pygame.draw.line(ventana, NEGRO, (x+tamano_celdas,y),
+                                         (x, y+tamano_celdas), 3)
                                     
 def pedir_nombre(ventana: object) -> str:
     '''
@@ -171,6 +190,9 @@ def pedir_nombre(ventana: object) -> str:
 
     fuente_titulo = pygame.font.Font(None, 50)
     fuente_input = pygame.font.Font(None, 40)
+    
+    fondo = pygame.image.load("imagenes\gaucho.png")
+    fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 
     #Caja centrada
     caja_ancho = 350
@@ -199,13 +221,14 @@ def pedir_nombre(ventana: object) -> str:
                 elif event.key == pygame.K_BACKSPACE:
                     nombre = nombre[:-1]
                 else:
-                    if len(nombre) < 20:
+                    if len(nombre) < 12:
                         nombre += event.unicode
-
-        ventana.fill(BLANCO)
+        
+        #Imgagen de fondo
+        ventana.blit(fondo, (0,0))
 
         #Titulo centrado
-        texto_titulo = fuente_titulo.render("Ingrese su nombre", True, NEGRO)
+        texto_titulo = fuente_titulo.render("Ingrese su nombre", True, BLANCO)
         ventana.blit(texto_titulo, ((ANCHO - texto_titulo.get_width()) // 2, 150))
 
         #Caja (formulario)
@@ -237,6 +260,9 @@ def menu_principal(ventana: object) -> None:
     
     fuente_titulo = pygame.font.Font(None, 80)
     fuente_btn = pygame.font.Font(None, 60)
+    
+    fondo = pygame.image.load("imagenes\gaucho_tarde.png")
+    fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 
     clock = pygame.time.Clock()
 
@@ -267,41 +293,42 @@ def menu_principal(ventana: object) -> None:
                 if btn_salir.collidepoint(evento.pos):
                     return pygame.quit()
 
-        #Fondo
-        ventana.fill(BLANCO)
+        #Imgagen de fondo
+        ventana.blit(fondo, (0,0))
 
         #Titulo
-        titulo = fuente_titulo.render("MENÚ PRINCIPAL", True, NEGRO)
+        titulo = fuente_titulo.render("MENÚ PRINCIPAL", True, BLANCO)
         ventana.blit(titulo, (ANCHO // 2 - titulo.get_width() // 2, 120)
         )
 
         #Boton jugar
-        pygame.draw.rect(ventana, NEGRO, btn_jugar, 3)
-        txt_jugar = fuente_btn.render("JUGAR", True, NEGRO)
+        pygame.draw.rect(ventana, BLANCO, btn_jugar, 3)
+        txt_jugar = fuente_btn.render("JUGAR", True, BLANCO)
         ventana.blit(txt_jugar, (btn_jugar.centerx - txt_jugar.get_width() // 2,
                                  btn_jugar.centery - txt_jugar.get_height() // 2))
 
         #Boton ranking
-        pygame.draw.rect(ventana, NEGRO, btn_ranking, 3)
-        txt_rank = fuente_btn.render("RANKING", True, NEGRO)
+        pygame.draw.rect(ventana, BLANCO, btn_ranking, 3)
+        txt_rank = fuente_btn.render("RANKING", True, BLANCO)
         ventana.blit(txt_rank, (btn_ranking.centerx - txt_rank.get_width() // 2,
                                 btn_ranking.centery - txt_rank.get_height() // 2))
 
         #Boton salir
-        pygame.draw.rect(ventana, NEGRO, btn_salir, 3)
-        txt_salir = fuente_btn.render("SALIR", True, NEGRO)
+        pygame.draw.rect(ventana, BLANCO, btn_salir, 3)
+        txt_salir = fuente_btn.render("SALIR", True, BLANCO)
         ventana.blit(txt_salir, (btn_salir.centerx - txt_salir.get_width() // 2, 
                                  btn_salir.centery - txt_salir.get_height() // 2))
         
         pygame.display.update()
         clock.tick(60)
 
-def mostrar_pantalla_final(ventana: object, ancho: int, alto: int, fuente: object, bandera: True|False) -> bool|None:
+def mostrar_pantalla_final(ventana: object, ancho: int, alto: int,
+                           fuente: object, bandera: True|False) -> bool|None:
     '''
     Muestra la pantalla final cuando el jugador gana o pierde.
 
     Muestra "GANADOR" si bandera -> True
-    Muestra "PERDEDOR" si bandera -> False
+    Muestra "PERDISTE" si bandera -> False
 
     Tiene un botón VOLVER que regresa al menú principal
 
@@ -318,7 +345,7 @@ def mostrar_pantalla_final(ventana: object, ancho: int, alto: int, fuente: objec
         mensaje = "GANADOR"
         color_mensaje = VERDE
     else:
-        mensaje = "PERDEDOR"
+        mensaje = "PERDISTE"
         color_mensaje = ROJO
 
     activo = True
@@ -369,6 +396,10 @@ def mostrar_ranking(ventana: object, ruta_csv: str ="archivos/ranking.csv") -> s
     fuente_titulo = pygame.font.Font(None, 60)
     fuente_tabla = pygame.font.Font(None, 40)
     fuente_boton = pygame.font.Font(None, 45)
+    
+    #Fondo juego
+    fondo = pygame.image.load("imagenes\gaucho_sol.png")
+    fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 
     #Leer el csv
     registros = []
@@ -398,18 +429,19 @@ def mostrar_ranking(ventana: object, ruta_csv: str ="archivos/ranking.csv") -> s
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if boton_volver.collidepoint(evento.pos):
                     return menu_principal(ventana)
-
-        ventana.fill(BLANCO) #Fondo blanco
+        
+        #Imgagen de fondo
+        ventana.blit(fondo, (0,0))
 
         #Titulo
-        titulo = fuente_titulo.render("RANKING", True, NEGRO)
+        titulo = fuente_titulo.render("RANKING", True, BLANCO)
         ventana.blit(titulo, (ANCHO // 2 - titulo.get_width() // 2, 30))
 
         #Encabezados ranking
-        ventana.blit(fuente_tabla.render("Puesto", True, NEGRO), (80, 120))
-        ventana.blit(fuente_tabla.render("Nombre", True, NEGRO), (260, 120))
-        ventana.blit(fuente_tabla.render("Dibujo", True, NEGRO), (440, 120))
-        ventana.blit(fuente_tabla.render("Tiempo", True, NEGRO), (620, 120))
+        ventana.blit(fuente_tabla.render("Puesto", True, BLANCO), (80, 120))
+        ventana.blit(fuente_tabla.render("Nombre", True, BLANCO), (260, 120))
+        ventana.blit(fuente_tabla.render("Dibujo", True, BLANCO), (440, 120))
+        ventana.blit(fuente_tabla.render("Tiempo", True, BLANCO), (620, 120))
 
         #Lista el top 10
         y = 165
@@ -417,17 +449,17 @@ def mostrar_ranking(ventana: object, ruta_csv: str ="archivos/ranking.csv") -> s
         for nombre, dibujo, tiempo in registros:
             tiempo_formateado = convertir_a_tiempo(tiempo)
 
-            ventana.blit(fuente_tabla.render(str(puesto), True, NEGRO), (100, y))
-            ventana.blit(fuente_tabla.render(nombre, True, NEGRO), (260, y))
-            ventana.blit(fuente_tabla.render(dibujo, True, NEGRO), (440, y))
-            ventana.blit(fuente_tabla.render(tiempo_formateado, True, NEGRO), (620, y))
+            ventana.blit(fuente_tabla.render(str(puesto), True, BLANCO), (100, y))
+            ventana.blit(fuente_tabla.render(nombre, True, BLANCO), (260, y))
+            ventana.blit(fuente_tabla.render(dibujo, True, BLANCO), (440, y))
+            ventana.blit(fuente_tabla.render(tiempo_formateado, True, BLANCO), (620, y))
 
             puesto += 1
             y += 40  #separacion entre filas
 
         #Boton volver
-        pygame.draw.rect(ventana, NEGRO, boton_volver, 3)
-        texto_volver = fuente_boton.render("VOLVER", True, NEGRO)
+        pygame.draw.rect(ventana, BLANCO, boton_volver, 3)
+        texto_volver = fuente_boton.render("VOLVER", True, BLANCO)
         ventana.blit(texto_volver, (boton_volver.centerx - texto_volver.get_width() // 2,
                                     boton_volver.centery - texto_volver.get_height() // 2))
 

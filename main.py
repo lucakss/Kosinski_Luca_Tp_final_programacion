@@ -5,13 +5,16 @@ import pygame.mixer as mixer
 from graficos.config import *
 from graficos.funciones_graficos import *
 from paquete.funciones import extraer_matriz_csv, extraer_pistas_matriz_fila, extraer_pistas_matriz_columna, crear_matriz, verificar_victoria, convertir_a_tiempo, guardar_puntaje
-rutas = ["corazon", "escarabajo", "pez", "prueba"]
+rutas = ["corazon", "escarabajo", "auto", "nave"]
 
 
 pygame.init()
 mixer.init()
 
-ICONO = pygame.image.load("imagenes/pvp.png")
+sonido_gano = pygame.mixer.Sound("sonidos/Aplausos_del_publico.mp3")
+sonido_perdio = pygame.mixer.Sound("sonidos/Sad_Trombone.mp3")
+
+ICONO = pygame.image.load("imagenes\icono_mate.png")
 
 pygame.display.set_caption("Nonograma")
 pygame.display.set_icon(ICONO)
@@ -31,14 +34,18 @@ while activo:
     if opcion == "jugar":
         #Cada vez que entra al if arranca una nueva partida
         
+        #Fondo juego
+        fondo_juego = pygame.image.load("imagenes\paisaje_fondo.jpg")
+        fondo_juego = pygame.transform.scale(fondo_juego, (ANCHO, ALTO))
+        
         #Musica de fondo
-        mixer.music.load("archivos\sonidos\Que Hacemos, Que Hacemos.mp3")
-        mixer.music.play()
+        mixer.music.load("sonidos/Que Hacemos, Que Hacemos.mp3")
+        
         mixer.music.set_volume(0.05)
+        mixer.music.play(-1)
         
         dibujo = random.choice(rutas)
         matriz = extraer_matriz_csv("archivos/" + dibujo + ".csv")
-        #matriz = extraer_matriz_csv("archivos/" + rutas[3])
 
         cant_celdas = len(matriz)
         tamano_celdas = calcular_tamano_celdas(TAMANO_GRILLA, cant_celdas)
@@ -146,7 +153,8 @@ while activo:
                         #Una vez que termino de evaluarse la celda, se elimina
                         del pendientes[(fila, columna)]
                         
-            ventana.fill(BLANCO)
+            #Imgagen de fondo
+            ventana.blit(fondo_juego, (0,0))
             
             #Dibuja grilla y colisiones
             dibujar_grilla(ventana, colisiones, LARGO_GRILLA, LARGO_GRILLA, TAMANO_GRILLA)
@@ -160,11 +168,14 @@ while activo:
                                 matriz_estado, tamano_celdas, incorrectas)
 
             #Mostrar vidas
-            texto_vidas = FUENTE.render(f"Vidas: {vidas}", True, NEGRO)
+            texto_vidas = FUENTE.render(f"Vidas: {vidas}", True, BLANCO)
             ventana.blit(texto_vidas, (50, 20))
                 
             #Verificar estado de partida
             if game_over:
+                mixer.music.stop()
+                sonido_perdio.set_volume(0.05)
+                sonido_perdio.play()
                 mostrar_pantalla_final(ventana, ANCHO, ALTO, FUENTE, False)
                 jugando = False
                 
@@ -176,10 +187,12 @@ while activo:
                     
                     guardar_puntaje(nombre, dibujo, segundos)
                     guardado = True
-                    
+                
+                mixer.music.stop()
+                sonido_gano.set_volume(0.05)
+                sonido_gano.play()
                 mostrar_pantalla_final(ventana, ANCHO, ALTO, FUENTE, True)
                 jugando = False
-            
             
             pygame.display.update()
         
